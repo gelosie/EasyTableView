@@ -23,6 +23,7 @@
 @synthesize selectedIndexPath = _selectedIndexPath;
 @synthesize orientation = _orientation;
 @synthesize numberOfCells = _numItems;
+@synthesize multiSelect;
 
 #pragma mark -
 #pragma mark Initialization
@@ -34,9 +35,11 @@
 }
 
 - (id)initWithFrame:(CGRect)frame numberOfColumns:(NSUInteger)numCols ofWidth:(CGFloat)width {
-    if (self = [super initWithFrame:frame]) {
+    self = [super initWithFrame:frame];
+    if (self) {
 		_numItems			= numCols;
 		_cellWidthOrHeight	= width;
+        self.multiSelect    = YES;
 
 		[self createTableWithOrienation:EasyTableViewOrientationHorizontal];
 	}
@@ -45,9 +48,11 @@
 
 
 - (id)initWithFrame:(CGRect)frame numberOfRows:(NSUInteger)numRows ofHeight:(CGFloat)height {
-    if (self = [super initWithFrame:frame]) {
+    self = [super initWithFrame:frame];
+    if (self) {
 		_numItems			= numRows;
 		_cellWidthOrHeight	= height;
+        self.multiSelect    = YES;
 		
 		[self createTableWithOrienation:EasyTableViewOrientationVertical];
     }
@@ -147,7 +152,8 @@
 
 
 - (void)setSelectedIndexPath:(NSIndexPath *)indexPath {
-	if (![_selectedIndexPath isEqual:indexPath]) {
+	if (self.multiSelect == YES || ![_selectedIndexPath isEqual:indexPath]) 
+    {
 		NSIndexPath *oldIndexPath = [_selectedIndexPath copy];
 		
 		[_selectedIndexPath release];
@@ -206,7 +212,7 @@
 
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	// Don't allow the currently selected cell to be selectable
-	if ([_selectedIndexPath isEqual:indexPath]) {
+	if (self.multiSelect == NO && [_selectedIndexPath isEqual:indexPath]) {
 		return nil;
 	}
 	return indexPath;
