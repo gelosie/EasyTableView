@@ -240,48 +240,57 @@
 
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"EasyTableViewCell";
+    __block UITableViewCell *cell = [[aTableView dequeueReusableCellWithIdentifier:CellIdentifier] retain];
+
+    [UIView animateWithDuration:0.0f
+                          delay:0.0f
+                        options:UIViewAnimationOptionOverrideInheritedDuration | UIViewAnimationOptionAllowUserInteraction
+                     animations:^(void) {
     
-    UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
-		
-		[self setCell:cell boundsForOrientation:_orientation];
-		
-		cell.contentView.frame = cell.bounds;
-		cell.selectionStyle = UITableViewCellSelectionStyleNone;
-		
-		// Add a view to the cell's content view that is rotated to compensate for the table view rotation
-		CGRect viewRect;
-		if (_orientation == EasyTableViewOrientationHorizontal)
-			viewRect = CGRectMake(0, 0, cell.bounds.size.height, cell.bounds.size.width);
-		else
-			viewRect = CGRectMake(0, 0, cell.bounds.size.width, cell.bounds.size.height);
-		
-		UIView *rotatedView				= [[UIView alloc] initWithFrame:viewRect];
-		rotatedView.tag					= ROTATED_CELL_VIEW_TAG;
-		rotatedView.center				= cell.contentView.center;
-		rotatedView.backgroundColor		= self.cellBackgroundColor;
-		
-		if (_orientation == EasyTableViewOrientationHorizontal) {
-			rotatedView.autoresizingMask = UIViewAutoresizingFlexibleHeight;
-			rotatedView.transform = CGAffineTransformMakeRotation(M_PI/2);
-		}
-		else 
-			rotatedView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+                         if (cell == nil) {
+                             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+                             
+                             [self setCell:cell boundsForOrientation:_orientation];
+                             
+                             cell.contentView.frame = cell.bounds;
+                             cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                             
+                             // Add a view to the cell's content view that is rotated to compensate for the table view rotation
+                             CGRect viewRect;
+                             if (_orientation == EasyTableViewOrientationHorizontal)
+                                 viewRect = CGRectMake(0, 0, cell.bounds.size.height, cell.bounds.size.width);
+                             else
+                                 viewRect = CGRectMake(0, 0, cell.bounds.size.width, cell.bounds.size.height);
+                             
+                             UIView *rotatedView				= [[UIView alloc] initWithFrame:viewRect];
+                             rotatedView.tag					= ROTATED_CELL_VIEW_TAG;
+                             rotatedView.center				= cell.contentView.center;
+                             rotatedView.backgroundColor		= self.cellBackgroundColor;
+                             
+                             if (_orientation == EasyTableViewOrientationHorizontal) {
+                                 rotatedView.autoresizingMask = UIViewAutoresizingFlexibleHeight;
+                                 rotatedView.transform = CGAffineTransformMakeRotation(M_PI/2);
+                             }
+                             else 
+                                 rotatedView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+                             
+                             // We want to make sure any expanded content is not visible when the cell is deselected
+                             rotatedView.clipsToBounds = YES;
+                             
+                             // Prepare and add the custom subviews
+                             [self prepareRotatedView:rotatedView];
+                             
+                             [cell.contentView addSubview:rotatedView];
+                             [rotatedView release];
+                         }
 
-		// We want to make sure any expanded content is not visible when the cell is deselected
-		rotatedView.clipsToBounds = YES;
-		
-		// Prepare and add the custom subviews
-		[self prepareRotatedView:rotatedView];
-		
-		[cell.contentView addSubview:rotatedView];
-		[rotatedView release];
-	}
-	[self setCell:cell boundsForOrientation:_orientation];
-
-	[self setDataForRotatedView:[cell.contentView viewWithTag:ROTATED_CELL_VIEW_TAG] forIndexPath:indexPath];
-    return cell;
+                         [self setCell:cell boundsForOrientation:_orientation];
+                         [self setDataForRotatedView:[cell.contentView viewWithTag:ROTATED_CELL_VIEW_TAG] forIndexPath:indexPath];
+                     }
+                     completion:^(BOOL finished) { }
+     ];
+                         
+    return [cell autorelease];
 }
 
 
@@ -292,8 +301,8 @@
 		numOfItems = [delegate numberOfCellsForEasyTableView:self];
 		
 		// Animate any changes in the number of items
-		[tableView beginUpdates];
-		[tableView endUpdates];
+//		[tableView beginUpdates];
+//		[tableView endUpdates];
 	}
 	
     return numOfItems;
