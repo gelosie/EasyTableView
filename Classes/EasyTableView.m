@@ -148,7 +148,7 @@
 - (void)setSelectedIndexPath:(NSIndexPath *)indexPath {
     // keeshux - nil deselects
     if (!indexPath) {
-        [_selectedIndexPath release];
+        //[_selectedIndexPath release];
         _selectedIndexPath = nil;
         return;
     }
